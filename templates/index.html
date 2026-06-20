@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto-README — Java Summarizer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/static/css/style.css" />
+</head>
+<body
+  data-app-ready="{{ 'true' if ready else 'false' }}"
+  data-app-loading="{{ 'true' if loading else 'false' }}"
+  data-app-error="{{ error|e if error else '' }}"
+>
+  <div class="bg-aurora" aria-hidden="true">
+    <span class="blob blob-1"></span>
+    <span class="blob blob-2"></span>
+    <span class="blob blob-3"></span>
+    <span class="grid-overlay"></span>
+  </div>
+
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#top">
+        <span class="brand-icon">&lt;/&gt;</span>
+        <div>
+          <h1>Code Summarization</h1>
+          <p>Java code summarization comparison</p>
+        </div>
+      </a>
+      <nav class="nav" id="primary-nav">
+        <a href="#architecture" class="nav-link">Architecture</a>
+        <a href="#models" class="nav-link">Models</a>
+        <a href="#try-it" class="nav-link">Try it</a>
+      </nav>
+      <div id="status-badge" class="status-badge {% if ready %}ready{% elif loading %}loading{% else %}error{% endif %}">
+        <span class="status-dot"></span>
+        <span class="status-text">{% if ready %}Models ready{% elif loading %}Loading models…{% else %}Not ready{% endif %}</span>
+      </div>
+    </div>
+  </header>
+
+  <main id="top">
+    <section class="hero container">
+      <div class="hero-content reveal">
+        <span class="eyebrow">NLP · CODE SUMMARIZATION</span>
+        <h2 class="hero-title">
+          Four ways to summarize
+          <span class="gradient-text">Java source code</span>
+        </h2>
+        <p class="hero-sub">
+          Upload a <code>.java</code> file and watch corpus-fitted extractive baselines,
+          a semantic embedding model, and a fine-tuned transformer each generate a
+          java code summary, compared live side by side.
+        </p>
+        <div class="hero-actions">
+          <a href="#try-it" class="btn primary">Try it now</a>
+          <a href="#architecture" class="btn ghost">See how it works</a>
+        </div>
+        <div class="hero-stats">
+          <div class="stat"><span class="stat-num">4</span><span class="stat-label">models</span></div>
+          <div class="stat"><span class="stat-num">live</span><span class="stat-label">inference</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="architecture" class="container section">
+      <div class="section-head reveal">
+        <span class="section-kicker">01 — Architecture</span>
+        <h2>How a file becomes four summaries</h2>
+        <p class="section-lead">
+          Extractive models summarize the whole file from split statements. CodeT5 runs
+          once per Java method, the same setup used in the CodeXGLUE evaluation.
+        </p>
+      </div>
+
+      <div class="pipeline reveal">
+        <div class="pipe-stage" data-stage="1">
+          <div class="pipe-node input">
+            <span class="pipe-icon">{ }</span>
+            <h4>Java upload</h4>
+            <p>A single <code>.java</code> file</p>
+          </div>
+        </div>
+
+        <div class="pipe-connector"><span></span></div>
+
+        <div class="pipe-stage" data-stage="2">
+          <div class="pipe-node process">
+            <span class="pipe-icon">⛓</span>
+            <h4>Preprocess</h4>
+            <p>Split statements; CodeT5 splits by method</p>
+          </div>
+        </div>
+
+        <div class="pipe-connector fan"><span></span></div>
+
+        <div class="pipe-stage models-fan" data-stage="3">
+          <div class="pipe-node model extractive">
+            <span class="model-glyph" style="--c:#2dd4bf">TF</span>
+            <h4>TF-IDF</h4>
+            <p>Term scoring</p>
+          </div>
+          <div class="pipe-node model extractive">
+            <span class="model-glyph" style="--c:#38bdf8">LR</span>
+            <h4>LexRank</h4>
+            <p>Graph centrality</p>
+          </div>
+          <div class="pipe-node model extractive">
+            <span class="model-glyph" style="--c:#a78bfa">ST</span>
+            <h4>Sentence-T</h4>
+            <p>Embeddings</p>
+          </div>
+          <div class="pipe-node model abstractive">
+            <span class="model-glyph" style="--c:#f59e0b">T5</span>
+            <h4>CodeT5</h4>
+            <p>Generation</p>
+          </div>
+        </div>
+
+        <div class="pipe-connector fan-in"><span></span></div>
+
+        <div class="pipe-stage" data-stage="4">
+          <div class="pipe-node output">
+            <span class="pipe-icon">▦</span>
+            <h4>Summary</h4>
+            <p>Four summaries</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="arch-grid">
+        <article class="arch-card reveal">
+          <div class="arch-card-icon">①</div>
+          <h3>Preprocessing</h3>
+          <ul>
+            <li>Split on <code>;</code> <code>{</code> <code>}</code> and newlines</li>
+            <li>Merge tiny fragments (&lt; 3 tokens)</li>
+            <li>CamelCase / snake_case identifier splitting</li>
+            <li>Java keyword + English stopword filtering</li>
+          </ul>
+        </article>
+        <article class="arch-card reveal">
+          <div class="arch-card-icon">②</div>
+          <h3>Corpus fitting</h3>
+          <ul>
+            <li>TF-IDF &amp; LexRank IDF from CodeXGLUE Java train + validation</li>
+            <li>Weights cached to <code>cache/idf_weights_train_val.pkl</code></li>
+            <li>Neural models use frozen pretrained checkpoints</li>
+            <li>One-time load, then served from memory</li>
+          </ul>
+        </article>
+        <article class="arch-card reveal">
+          <div class="arch-card-icon">③</div>
+          <h3>Output</h3>
+          <ul>
+            <li>Extractive models return top-N statements from the whole file</li>
+            <li>CodeT5 generates one English sentence per method (evaluation setup)</li>
+            <li>Per-model latency tracked for each run</li>
+            <li>Results compared in a single view</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <section id="models" class="container section">
+      <div class="section-head reveal">
+        <span class="section-kicker">02 — Models</span>
+        <h2>The four summarizers</h2>
+        <p class="section-lead">
+          Each model represents a different tier of prior knowledge. Click a card to expand
+          its step-by-step algorithm, strengths, and limitations.
+        </p>
+      </div>
+
+      <div class="model-cards">
+        {% for m in models %}
+        <article class="model-card reveal {{ m.approach|lower }}" style="--accent: {{ m.accent }}" data-model="{{ m.id }}">
+          <button class="model-card-head" aria-expanded="false">
+            <span class="model-glyph" style="--c: {{ m.accent }}">{{ m.glyph }}</span>
+            <div class="model-card-titles">
+              <h3>{{ m.name }}</h3>
+              <span class="model-family">{{ m.family }}</span>
+            </div>
+            <span class="model-chevron" aria-hidden="true">⌄</span>
+          </button>
+
+          <div class="model-card-meta">
+            <span class="tag tag-{{ m.approach|lower }}">{{ m.approach }}</span>
+            <span class="tag tag-tier">{{ m.tier }}</span>
+            <span class="tag tag-speed">{{ m.speed }}</span>
+          </div>
+
+          <p class="model-tagline">{{ m.tagline }}</p>
+
+          <div class="model-card-body">
+            <p class="model-desc">{{ m.description }}</p>
+
+            <div class="model-section">
+              <h4>How it works</h4>
+              <ol class="model-steps">
+                {% for step in m.steps %}
+                <li><span class="step-num">{{ loop.index }}</span><span>{{ step }}</span></li>
+                {% endfor %}
+              </ol>
+            </div>
+
+            <div class="model-cols">
+              <div class="model-section">
+                <h4 class="good">Strengths</h4>
+                <ul class="pill-list">
+                  {% for s in m.strengths %}<li class="pill good">{{ s }}</li>{% endfor %}
+                </ul>
+              </div>
+              <div class="model-section">
+                <h4 class="warn">Limitations</h4>
+                <ul class="pill-list">
+                  {% for l in m.limitations %}<li class="pill warn">{{ l }}</li>{% endfor %}
+                </ul>
+              </div>
+            </div>
+
+            <dl class="model-facts">
+              <div><dt>Input</dt><dd>{{ m.input }}</dd></div>
+
+            </dl>
+          </div>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section id="try-it" class="container section">
+      <div class="section-head reveal">
+        <span class="section-kicker">03 — Try it</span>
+        <h2>Summarize your Java file</h2>
+        <p class="section-lead">Upload a <code>.java</code> file. Extractive models use the whole file; CodeT5 summarizes each method separately.</p>
+      </div>
+
+      <div class="try-panel reveal">
+        <form id="upload-form" class="upload-zone" enctype="multipart/form-data">
+          <input type="file" id="file-input" name="file" accept=".java" hidden />
+          <div class="upload-inner" id="drop-zone">
+            <div class="upload-icon">↑</div>
+            <p class="upload-title">Drop a <code>.java</code> file here</p>
+            <p class="muted">or click to browse · UTF-8 text · multi-method classes supported</p>
+          </div>
+          <div class="upload-bar">
+            <div id="file-meta" class="file-meta hidden"></div>
+            <button type="submit" id="submit-btn" class="btn primary" disabled>
+              <span class="btn-label">Generate summaries</span>
+            </button>
+          </div>
+        </form>
+
+        <div id="loading" class="loading hidden">
+          <div class="loader-track">
+            <div class="loader-bar"></div>
+          </div>
+          <p>Running all four models… CodeT5 runs once per method and may take longer on CPU.</p>
+        </div>
+
+        <div id="error" class="alert error hidden"></div>
+
+        <div id="results" class="results hidden">
+          <div class="results-meta" id="results-meta"></div>
+          <div class="results-grid" id="results-grid"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
