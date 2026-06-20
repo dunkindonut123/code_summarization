@@ -1,4 +1,4 @@
-"""Summarization models — ported from readme_summarization_experiment.ipynb."""
+
 
 from __future__ import annotations
 
@@ -17,7 +17,6 @@ from engine.preprocessing import tokenize
 
 
 class TFIDFModel:
-    """Extractive summarizer using TF-IDF sentence scoring."""
 
     def __init__(self) -> None:
         self.idf: dict[str, float] = {}
@@ -56,7 +55,6 @@ class TFIDFModel:
 
 
 class LexRankModel:
-    """Graph-based extractive summarizer (LexRank)."""
 
     THRESHOLD = 0.1
     DAMPING = 0.85
@@ -134,8 +132,6 @@ class LexRankModel:
 
 
 class SentenceTransformerModel:
-    """Extractive summarizer using frozen sentence embeddings."""
-
     def __init__(self, model_name: str = "all-MiniLM-L6-v2") -> None:
         self.model = SentenceTransformer(model_name)
 
@@ -152,8 +148,6 @@ class SentenceTransformerModel:
 
 
 class CodeT5Model:
-    """Abstractive summarizer using CodeT5 fine-tuned on Java."""
-
     MODEL_NAME = "Salesforce/codet5-base-codexglue-sum-java"
     VOCAB_REPO = "Salesforce/codet5-base"
     _SPECIAL_TOKENS = ("<pad>", "<s>", "</s>", "<unk>", "<mask>")
