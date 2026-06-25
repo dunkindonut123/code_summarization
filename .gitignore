@@ -23,5 +23,6 @@ per_sample_results.csv
 output.png
 rouge_comparison.png
 
-# App cache (rebuilt on first run)
-cache/
+# App cache (other files rebuilt locally; IDF pickle is shipped for HF Spaces)
+cache/*
+!cache/idf_weights_train_val.pkl

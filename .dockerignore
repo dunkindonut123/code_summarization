@@ -1,0 +1,10 @@
+.git
+.venv
+venv
+__pycache__
+*.ipynb
+.ipynb_checkpoints
+.DS_Store
+per_sample_results.csv
+aggregate_comparison.csv
+*.png
